@@ -1,0 +1,26 @@
+{
+  "01": [
+    {
+      "username": "user01",
+      "score": 1000
+    },
+    {
+      "username": "user02",
+      "score": 500
+    }
+  ],
+  "test01": [
+    {
+      "username": "testuser2",
+      "score": 2000
+    },
+    {
+      "username": "testuser",
+      "score": 1000
+    },
+    {
+      "username": "testuser3",
+      "score": 1000
+    }
+  ]
+}

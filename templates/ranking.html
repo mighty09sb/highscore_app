@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ game_id }} Ranking</title>
+</head>
+<body>
+  <h1>Game {{ game_id }} Ranking</h1>
+  <ol>
+    {% for entry in ranking %}
+      <li>{{ entry.username }} - {{ entry.score }}</li>
+    {% endfor %}
+  </ol>
+</body>
+</html>

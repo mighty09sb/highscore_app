@@ -1,0 +1,6 @@
+# 仮想環境（venv）
+venv/
+
+# Pythonキャッシュファイル
+__pycache__/
+*.pyc

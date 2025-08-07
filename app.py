@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template,abort
 import json
 import os
 
@@ -19,6 +19,22 @@ def load_data():
 def save_data(data):
     with open(DATA_FILE, 'w') as f:
         json.dump(data, f, indent=2)
+
+def get_client_ip():
+    forwarded_for = request.headers.get('X-Forwarded-For', '')
+    ip = forwarded_for.split(',')[0] if forwarded_for else request.remote_addr
+    return ip
+
+ALLOWED_IPS = ['127.0.0.1',        # IPv4 localhost
+    '::1',
+    '10.152.211.180']  # ← 調べたプロキシのIPをここに入れる
+
+@app.before_request
+def limit_remote_addr():
+    client_ip = request.remote_addr
+    if client_ip not in ALLOWED_IPS:
+        abort(403)  # アクセス拒否
+
 
 @app.route('/submit', methods=['POST'])
 def submit_score():

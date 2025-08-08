@@ -27,6 +27,8 @@ def get_client_ip():
 
 ALLOWED_IPS = ['127.0.0.1',        # IPv4 localhost
     '::1',
+    '180.44.146.151',   #  wlan
+    '192.174.128.170', #proxy
     '10.152.211.180']  # ← 調べたプロキシのIPをここに入れる
 
 @app.before_request

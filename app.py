@@ -69,7 +69,7 @@ def submit_score():
 
     if existing is None:
         # 新規ユーザー
-        score_entry = Score(game_id=game_id, username=username, score=new_score, timestamp=datetime.utcnow(), change='new')
+        score_entry = Score(game_id=game_id, username=username, score=new_score, timestamp=datetime.now(ZoneInfo('Asia/Tokyo')), change='New')
         db.session.add(score_entry)
         db.session.commit()
         flagRankChange=True
@@ -93,7 +93,7 @@ def submit_score():
             # 変化判定
             if old_rank is None:
                 # 以前なかった場合はnew（理論上ありえないけど念のため）
-                existing.change = 'new'
+                existing.change = 'New'
                 #flagRankChange=True
             else:
                 if new_rank < old_rank:
@@ -102,11 +102,11 @@ def submit_score():
                 elif new_rank > old_rank:
                     existing.change = '↓'
                 else:
-                    existing.change = ''
+                    existing.change = '→'
             db.session.commit()
         else:
             # スコアが更新されていない場合は変化なし
-            existing.change = ''
+            existing.change = '→'
             db.session.commit()
 
     if flagRankChange:
@@ -130,7 +130,7 @@ def submit_score():
             elif new_rank < old_rank:
                 s.change = '↑'
             else:
-                s.change = ''  # 順位変わらず
+                s.change = '→'  # 順位変わらず
         db.session.commit()
 
     # 送信後のトップ10スコアを返す

@@ -4,3 +4,5 @@ venv/
 # Pythonキャッシュファイル
 __pycache__/
 *.pyc
+
+.env

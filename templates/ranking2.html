@@ -42,7 +42,20 @@
       <td>{{ loop.index }}</td>
       <td>{{ entry.username }}</td>
       <td>{{ entry.score }}</td>
-      <td>{{ entry.change or '' }}</td>
+      
+      <td>
+      {% if entry.change in ['↑', '⬆','new','New','🆕'] %}
+      <span style="color: blue;"> {{ entry.change}} </span>
+      {% elif entry.change in ['↓', '⬇'] %}
+       <span style="color: red;"> {{ entry.change}} </span>
+      {% elif entry.change %}
+      {{ entry.change }}
+      {% else %}
+       &nbsp;
+      {% endif %}
+      </td>
+
+
       <td>
         {% if entry.timestamp %}
           {{ entry.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}

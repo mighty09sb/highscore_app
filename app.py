@@ -26,6 +26,12 @@ class Score(db.Model):
         db.UniqueConstraint('game_id', 'username', name='unique_game_user'),
     )
 
+@app.template_filter('to_jst')
+def to_jst(dt):
+    if dt is None:
+        return ''
+    return dt.replace(tzinfo=ZoneInfo('UTC')).astimezone(ZoneInfo('Asia/Tokyo')).strftime('%Y-%m-%d %H:%M:%S')
+
 # 初回起動時にテーブル作成
 with app.app_context():
     db.create_all()
@@ -69,7 +75,7 @@ def submit_score():
 
     if existing is None:
         # 新規ユーザー
-        score_entry = Score(game_id=game_id, username=username, score=new_score, timestamp=datetime.now(ZoneInfo('Asia/Tokyo')), change='New')
+        score_entry = Score(game_id=game_id, username=username, score=new_score, timestamp=datetime.utcnow(), change='New')
         db.session.add(score_entry)
         db.session.commit()
         flagRankChange=True
@@ -83,7 +89,7 @@ def submit_score():
         if new_score > old_score:
             # スコア更新
             existing.score = new_score
-            existing.timestamp = datetime.now(ZoneInfo('Asia/Tokyo'))
+            existing.timestamp = datetime.utcnow()
             #existing.timestamp = datetime.utcnow().replace(tzinfo=ZoneInfo('UTC')).astimezone(ZoneInfo('Asia/Tokyo'))
             # 更新後のランキングでの順位を調べるため、一旦コミットしてから再取得
             db.session.commit()

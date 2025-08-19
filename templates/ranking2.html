@@ -58,7 +58,7 @@
 
       <td>
         {% if entry.timestamp %}
-          {{ entry.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+          {{ entry.timestamp|to_jst }}
         {% else %}
           N/A
         {% endif %}

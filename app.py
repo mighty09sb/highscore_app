@@ -3,13 +3,15 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
 # 環境変数や設定に応じてDB URIを切り替え
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///scores.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+print("DB URI:", app.config['SQLALCHEMY_DATABASE_URI'])
 db = SQLAlchemy(app)
 
 # スコアモデル（テーブル名はscores）
@@ -18,7 +20,7 @@ class Score(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     game_id = db.Column(db.String(64), index=True, nullable=False)
     username = db.Column(db.String(64), nullable=False)
-    score = db.Column(db.Integer, nullable=False)
+    score = db.Column(db.BigInteger, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     change = db.Column(db.String(4), default='', nullable=True)  # new, ↑, ↓ など
 

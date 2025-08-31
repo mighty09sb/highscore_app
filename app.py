@@ -4,9 +4,12 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 app = Flask(__name__)
+
+
 
 # 環境変数や設定に応じてDB URIを切り替え
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///scores.db')
@@ -27,6 +30,16 @@ class Score(db.Model):
     __table_args__ = (
         db.UniqueConstraint('game_id', 'username', name='unique_game_user'),
     )
+
+def get_recent_game_ids(limit=10):
+    recent_games = (
+        db.session.query(Score.game_id)
+        .distinct(Score.game_id)
+        .order_by(Score.game_id, Score.timestamp.desc())
+        .limit(limit)
+        .all()
+    )
+    return [g[0] for g in recent_games]
 
 @app.template_filter('to_jst')
 def to_jst(dt):
@@ -168,6 +181,16 @@ def get_ranking(game_id):
             'change': s.change
         })
     return jsonify(result)
+
+@app.route('/api/recent_games')
+def api_recent_games():
+    recent_game_ids = get_recent_game_ids(limit=10)
+    return jsonify(recent_game_ids)
+
+@app.route('/recent')
+def show_recent():
+    return render_template('recent.html')
+
 
 @app.route('/<game_id>')
 def show_ranking(game_id):

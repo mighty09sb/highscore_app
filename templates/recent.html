@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>最近のゲームランキング</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background-color: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #eee;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="game-title">読み込み中...</h1>
+  <table id="ranking-table">
+    <tr>
+      <th>順位</th>
+      <th>ユーザー名</th>
+      <th>スコア</th>
+      <th>変化</th>
+      <th>記録日時</th>
+    </tr>
+  </table>
+
+  <script>
+    let gameIndex = 0;
+    let gameIds = [];
+
+    async function fetchRecentGameIds() {
+      const response = await fetch('/api/recent_games');
+      gameIds = await response.json();
+    }
+
+    async function fetchAndShowRanking(gameId) {
+      const res = await fetch(`/ranking/${gameId}`);
+      const data = await res.json();
+
+      const table = document.getElementById('ranking-table');
+      const title = document.getElementById('game-title');
+      title.textContent = `ゲーム ID: ${gameId} のランキング`;
+
+      // Remove old rows except header
+      while (table.rows.length > 1) table.deleteRow(1);
+
+      data.forEach((entry, index) => {
+        const row = table.insertRow();
+        row.insertCell().textContent = index + 1;
+        row.insertCell().textContent = entry.username;
+        row.insertCell().textContent = entry.score;
+
+        // 変化
+        const changeCell = row.insertCell();
+        const change = entry.change || '';
+        if (['↑', '⬆', 'new', 'New', '🆕'].includes(change)) {
+          changeCell.innerHTML = `<span style="color: blue;">${change}</span>`;
+        } else if (['↓', '⬇'].includes(change)) {
+          changeCell.innerHTML = `<span style="color: red;">${change}</span>`;
+        } else {
+          changeCell.innerHTML = change || '&nbsp;';
+        }
+
+        // 日時
+        const timestampCell = row.insertCell();
+        if (entry.timestamp) {
+          const jstDate = new Date(entry.timestamp).toLocaleString('ja-JP', {
+            timeZone: 'Asia/Tokyo',
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+          });
+          timestampCell.textContent = jstDate;
+        } else {
+          timestampCell.textContent = 'N/A';
+        }
+      });
+    }
+
+    async function cycleThroughGames() {
+      await fetchRecentGameIds();
+
+      if (gameIds.length === 0) {
+        document.getElementById('game-title').textContent = '最近の更新はありません。';
+        return;
+      }
+
+      async function updateRanking() {
+        const gameId = gameIds[gameIndex];
+        await fetchAndShowRanking(gameId);
+
+        gameIndex++;
+        if (gameIndex >= gameIds.length) {
+          gameIndex = 0;
+          await fetchRecentGameIds();  // 最新データを再取得
+        }
+      }
+
+      updateRanking();  // 初回表示
+      setInterval(updateRanking, 60000); // 60秒ごとに切り替え
+    }
+
+    cycleThroughGames();
+  </script>
+</body>
+</html>
+
